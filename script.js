@@ -1,3 +1,4 @@
+const BRUSH_TIME = 1500
 const activeToolEl = document.getElementById('active-tool');
 const brushColorBtn = document.getElementById('brush-color');
 const brushIcon = document.getElementById('brush');
@@ -51,7 +52,7 @@ bucketColorBtn.addEventListener('change', () => {
  restoreCanvas()
 });
 
-// // Eraser
+// Eraser
 eraser.addEventListener('click', () => {
   isEraser = true
   brushIcon.style.color = 'white';
@@ -61,7 +62,7 @@ eraser.addEventListener('click', () => {
   currentSize = 50
 });
 
-// // Switch back to Brush
+// Switch back to Brush
 function switchToBrush() {
   isEraser = false;
   activeToolEl.textContent = 'Brush';
@@ -73,6 +74,13 @@ function switchToBrush() {
   displayBrushSize()
 }
 
+
+function brushTimeSetTimeout(ms) {
+  setTimeout(switchToBrush, ms)
+}
+
+
+
 // Create Canvas
 function createCanvas() {
   canvas.width = window.innerWidth;
@@ -83,16 +91,16 @@ function createCanvas() {
   switchToBrush()
 }
 
-// // Clear Canvas
+// Clear Canvas
 clearCanvasBtn.addEventListener('click', () => {
   createCanvas();
   drawnArray = [];
   // Active Tool
   activeToolEl.textContent = 'Canvas Cleared';
-  setTimeout(switchToBrush, 1500);
+  brushTimeSetTimeout(BRUSH_TIME);
 });
 
-// // Draw what is stored in DrawnArray
+// Draw what is stored in DrawnArray
 function restoreCanvas() {
   for (let i = 1; i < drawnArray.length; i++) {
     context.beginPath();
@@ -109,7 +117,7 @@ function restoreCanvas() {
   }
 }
 
-// // Store Drawn Lines in DrawnArray
+// Store Drawn Lines in DrawnArray
 function storeDrawn(x, y, size, color, erase) {
   const line = {
     x,
@@ -165,41 +173,44 @@ canvas.addEventListener('mouseup', () => {
   isMouseDown = false;
 });
 
-// // Save to Local Storage
-// saveStorageBtn.addEventListener('click', () => {
+// Save to Local Storage
+saveStorageBtn.addEventListener('click', () => {
+localStorage.setItem('savedCanvas', JSON.stringify(drawnArray))
+  // Active Tool
+  activeToolEl.textContent = 'Canvas Saved';
+  brushTimeSetTimeout(BRUSH_TIME);
+});
 
-//   // Active Tool
-//   activeToolEl.textContent = 'Canvas Saved';
-//   setTimeout(switchToBrush, 1500);
-// });
+// Load from Local Storage
+loadStorageBtn.addEventListener('click', () => {
+  if (localStorage.getItem('savedCanvas')) {
+    drawnArray = JSON.parse(localStorage.savedCanvas);
+    restoreCanvas()
+  // Active Tool
+    activeToolEl.textContent = 'Canvas Loaded';
+    brushTimeSetTimeout(BRUSH_TIME);
+  } else {
+    activeToolEl.textContent = 'No Canvas Found'
+  }
 
-// // Load from Local Storage
-// loadStorageBtn.addEventListener('click', () => {
-//   if (localStorage.) {
-//     drawnArray = JSON(localStorage.);
+});
 
-//   // Active Tool
-//     activeToolEl.textContent = 'Canvas Loaded';
-//     setTimeout(switchToBrush, 1500);
-//   } 
+ // Clear Local Storage
+clearStorageBtn.addEventListener('click', () => {
+  localStorage.removeItem('savedCanvas')
+  // Active Tool
+  activeToolEl.textContent = 'Local Storage Cleared';
+  brushTimeSetTimeout(BRUSH_TIME);
+});
 
-// });
-
-// // Clear Local Storage
-// clearStorageBtn.addEventListener('click', () => {
-
-//   // Active Tool
-//   activeToolEl.textContent = 'Local Storage Cleared';
-//   setTimeout(switchToBrush, 1500);
-// });
-
-// // Download Image
-// downloadBtn.addEventListener('click', () => {
-
-//   // Active Tool
-//   activeToolEl.textContent = 'Image File Saved';
-//   setTimeout(switchToBrush, 1500);
-// });
+// Download Image
+downloadBtn.addEventListener('click', () => {
+  downloadBtn.href = canvas.toDataURL("image/jpeg", 1);
+  downloadBtn.download = 'paint-example.jpeg'
+  // Active Tool
+  activeToolEl.textContent = 'Image File Saved';
+  brushTimeSetTimeout(BRUSH_TIME);
+});
 
 // // Event Listener
 brushIcon.addEventListener('click', switchToBrush);
